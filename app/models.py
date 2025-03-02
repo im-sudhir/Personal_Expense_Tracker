@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 
 # Create your models here.
-class Expense(models.Model):
-    CATEGORY_CHOICES = [
+
+CATEGORY_CHOICES = [
         ('Food', 'Food'),
         ('Travel', 'Travel'),
         ('Shopping', 'Shopping'),
@@ -12,6 +12,13 @@ class Expense(models.Model):
         ('Other', 'Other'),
     ]
 
+FREQUENCY_CHOICES=[
+    ('Daily', 'Daily'),
+    ('Weekly', 'Weekly'),
+    ('Monthly', 'Monthly'),
+    ('Yearly', 'Yearly')
+]
+class Expense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="expenses")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
@@ -26,14 +33,6 @@ class Expense(models.Model):
 
 
 class Budget(models.Model):
-    CATEGORY_CHOICES = [
-        ('Food', 'Food'),
-        ('Travel', 'Travel'),
-        ('Shopping', 'Shopping'),
-        ('Bills', 'Bills'),
-        ('Other', 'Other'),
-    ]
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="budgets")
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     budget_limit = models.DecimalField(max_digits=10, decimal_places=2)
@@ -47,3 +46,19 @@ class Budget(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.category} - {self.budget_limit}"
+
+
+class RecurringExpense(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE, related_name='recurring_expense')
+    amount=models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    frequency=models.CharField(max_length=50, choices=FREQUENCY_CHOICES)
+    next_due_data=models.DateField(auto_now=False, auto_now_add=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return f"{self.user.username} - {self.category} - {self.frequency}"
+    
